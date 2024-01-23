@@ -4,7 +4,6 @@ public class CoinCalculator {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("Welcome to the Coin Calculator!");
         System.out.print("Enter the amount in dollars (e.g., 4.55): $");
         
         double amount = scanner.nextDouble();
