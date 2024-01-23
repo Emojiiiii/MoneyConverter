@@ -17,10 +17,12 @@ public class CoinCalculator {
         int quarters = cents / 25;
         int dimes = (cents % 25) / 10;
         int nickels = ((cents % 25) % 10) / 5;
+        int pennies = (((cents % 25) % 10) % 5)/ 1;
 
         System.out.println("\nCoin breakdown for $" + amount + ":");
         System.out.println(quarters + " quarters");
         System.out.println(dimes + " dimes");
         System.out.println(nickels + " nickels");
+        System.out.println(pennies + " pennies");
     }
 }
