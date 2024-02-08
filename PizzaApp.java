@@ -1,73 +1,100 @@
-import javax.swing.*;
-import java.awt.*;
+import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 
 public class PizzaApp extends JFrame implements ActionListener {
-    int price = 0; // 记录总价格
-    JLabel question = new JLabel("您想要哪种比萨？");
+    float pizzaPrice = 0; // 记录披萨价格
+    Set<String> selectedToppings = new HashSet<>(); // 记录选择的配料
+    JLabel pizzaQuestion = new JLabel("What kind of pizza you want?", SwingConstants.CENTER);
 
-    JButton pressSmall = new JButton("小号 $5");
-    JButton pressMedium = new JButton("中号 $10");
-    JButton pressLarge = new JButton("大号 $15");
-    JButton pressSuperLarge = new JButton("超大号 $20");
+    JButton pressSmall = new JButton("Small $5");
+    JButton pressMedium = new JButton("Medium $10");
+    JButton pressLarge = new JButton("Large $15");
+    JButton pressSuperLarge = new JButton("Super $20");
+
+    JPanel cardPanel = new JPanel(new CardLayout());
+    JPanel pizzaPanel = new JPanel(new GridLayout(5, 1, 10, 10)); // 使用GridLayout布局管理器
+    JPanel toppingsPanel = new JPanel(new GridLayout(6, 1, 10, 10)); // 增加一行用于提示信息
+    JLabel toppingsQuestion = new JLabel("Select up to 3 toppings. All for $1.25!", SwingConstants.CENTER);
+
+    JButton topping1 = new JButton("Topping1 $0.5");
+    JButton topping2 = new JButton("Topping2 $0.5");
+    JButton topping3 = new JButton("Topping3 $0.5");
+    JButton CHECKOUT = new JButton("CHECKOUT");
 
     public PizzaApp() {
-        super("比萨应用");
-        final int WIDTH = 275;
-        final int HEIGHT = 224;
-        setSize(WIDTH, HEIGHT);
-        setLayout(new FlowLayout());
+        super("Pizza App");
+        setSize(350, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        add(question);
-        add(pressSmall);
-        add(pressMedium);
-        add(pressLarge);
-        add(pressSuperLarge);
+
+        pizzaPanel.add(pizzaQuestion);
+        pizzaPanel.add(pressSmall);
+        pizzaPanel.add(pressMedium);
+        pizzaPanel.add(pressLarge);
+        pizzaPanel.add(pressSuperLarge);
+
+        toppingsPanel.add(toppingsQuestion);
+        toppingsPanel.add(topping1);
+        toppingsPanel.add(topping2);
+        toppingsPanel.add(topping3);
+        toppingsPanel.add(new JLabel()); // 占位符，保持布局一致
+        toppingsPanel.add(CHECKOUT);
+
+        cardPanel.add(pizzaPanel, "Pizza Size");
+        cardPanel.add(toppingsPanel, "Toppings");
+        add(cardPanel);
 
         pressSmall.addActionListener(this);
         pressMedium.addActionListener(this);
         pressLarge.addActionListener(this);
         pressSuperLarge.addActionListener(this);
+
+        topping1.addActionListener(this);
+        topping2.addActionListener(this);
+        topping3.addActionListener(this);
+        CHECKOUT.addActionListener(this);
+
+        ((CardLayout) cardPanel.getLayout()).show(cardPanel, "Pizza Size");
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        // 根据按钮点击事件更新价格
-        if (e.getSource() == pressSmall) {
-            price += 5;
-        } else if (e.getSource() == pressMedium) {
-            price += 10;
-        } else if (e.getSource() == pressLarge) {
-            price += 15;
-        } else if (e.getSource() == pressSuperLarge) {
-            price += 20;
-        }
+        JButton clickedButton = (JButton) e.getSource();
 
-        // 创建新的弹窗询问配料
-        if (price > 0) {
-            JLabel toppingsQuestion = new JLabel("您想要哪些配料？");
-            JLabel topping1 = new JLabel("1");
-            JLabel topping2 = new JLabel("2");
-            JLabel topping3 = new JLabel("3");
-            JLabel check = new JLabel("完成");
-
-            // 在此可以添加代码来显示配料选择的界面
-
-            // 可以使用JOptionPane.showInputDialog等方法来获取用户输入
-
-            // 最后，您可能需要更新总价格和配料的逻辑
-
-            // 示例：使用JOptionPane显示总价
-            JOptionPane.showMessageDialog(this, "总价格：" + price);
+        if (clickedButton == pressSmall || clickedButton == pressMedium || clickedButton == pressLarge || clickedButton == pressSuperLarge) {
+            pizzaPrice = Float.parseFloat(clickedButton.getText().replaceAll("[^0-9.]", ""));
+            ((CardLayout) cardPanel.getLayout()).show(cardPanel, "Toppings");
+        } else if (clickedButton == topping1 || clickedButton == topping2 || clickedButton == topping3) {
+            if (selectedToppings.add(clickedButton.getText())) { // 成功添加说明之前未选
+                clickedButton.setBackground(Color.RED); // 改变按钮颜色
+            }
+            if (selectedToppings.size() == 3) {
+                // 当选择了三种配料时，设置特殊价格
+                JOptionPane.showMessageDialog(this, "Special offer: All 3 toppings for $1.25!");
+            }
+        } else if (clickedButton == CHECKOUT) {
+            float toppingsPrice = selectedToppings.size() == 3 ? 1.25f : selectedToppings.size() * 0.5f;
+            float totalPrice = pizzaPrice + toppingsPrice;
+            JOptionPane.showMessageDialog(this, "Total Price: $" + totalPrice);
+            selectedToppings.clear(); // 结账后清除选择的配料
         }
     }
 
     public static void main(String[] args) {
-        new PizzaApp().setVisible(true);
+        SwingUtilities.invokeLater(() -> {
+            new PizzaApp().setVisible(true);
+        });
     }
 }
-
-
-
-
